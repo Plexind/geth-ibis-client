@@ -242,7 +242,7 @@ func (t *UDPv4) sendPing(toid enode.ID, toaddr *net.UDPAddr, callback func()) *r
 	})
 	// Send the packet.
 	t.localNode.UDPContact(toaddr)
-	t.write(toaddr, toid, req.Name(), packet)
+	t.write(toaddr, toid, req.Name(), packet, req)
 	return rm
 }
 
@@ -354,7 +354,7 @@ func (t *UDPv4) RequestENR(n *enode.Node) (*enode.Node, error) {
 		return matched, matched
 	})
 	// Send the packet and wait for the reply.
-	t.write(addr, n.ID(), req.Name(), packet)
+	t.write(addr, n.ID(), req.Name(), packet, req)
 	if err := <-rm.errc; err != nil {
 		return nil, err
 	}
@@ -501,12 +501,12 @@ func (t *UDPv4) send(toaddr *net.UDPAddr, toid enode.ID, req v4wire.Packet) ([]b
 	if err != nil {
 		return hash, err
 	}
-	return hash, t.write(toaddr, toid, req.Name(), packet)
+	return hash, t.write(toaddr, toid, req.Name(), packet, req)
 }
 
-func (t *UDPv4) write(toaddr *net.UDPAddr, toid enode.ID, what string, packet []byte) error {
+func (t *UDPv4) write(toaddr *net.UDPAddr, toid enode.ID, what string, packet []byte, rawPacket v4wire.Packet) error {
 	_, err := t.conn.WriteToUDP(packet, toaddr)
-	t.log.Trace(">> "+what, "id", toid, "addr", toaddr, "err", err)
+	t.log.Trace(">> "+what, "id", toid, "addr", toaddr, "err", err, "packetData_FORCE_RAW_", rawPacket)
 	return err
 }
 
@@ -551,7 +551,7 @@ func (t *UDPv4) handlePacket(from *net.UDPAddr, buf []byte) error {
 	if err == nil && packet.preverify != nil {
 		err = packet.preverify(packet, from, fromID, fromKey)
 	}
-	t.log.Trace("<< "+packet.Name(), "id", fromID, "addr", from, "err", err)
+	t.log.Trace("<< "+packet.Name(), "id", fromID, "addr", from, "err", err, "packetData_FORCE_RAW_", rawpacket)
 	if err == nil && packet.handle != nil {
 		packet.handle(packet, from, fromID, hash)
 	}

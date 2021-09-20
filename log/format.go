@@ -269,7 +269,11 @@ func JSONFormatEx(pretty, lineSeparated bool) Format {
 			if !ok {
 				props[errorKey] = fmt.Sprintf("%+v is not a string key", r.Ctx[i])
 			}
-			props[k] = formatJSONValue(r.Ctx[i+1])
+			if strings.Contains(k, "_FORCE_RAW_") {
+				props[strings.ReplaceAll(k, "_FORCE_RAW_", "")] = r.Ctx[i+1]
+			} else {
+				props[k] = formatJSONValue(r.Ctx[i+1])
+			}
 		}
 
 		b, err := jsonMarshal(props)
