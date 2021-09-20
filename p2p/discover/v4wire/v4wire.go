@@ -21,6 +21,8 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -128,6 +130,10 @@ const MaxNeighbors = 12
 
 // Pubkey represents an encoded 64-byte secp256k1 public key.
 type Pubkey [64]byte
+
+func (pk Pubkey) MarshalJSON() ([]byte, error) {
+	return json.Marshal(hex.EncodeToString(pk[:]))
+}
 
 // ID returns the node ID corresponding to the public key.
 func (e Pubkey) ID() enode.ID {
