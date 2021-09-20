@@ -246,6 +246,14 @@ func JSONFormatOrderedEx(pretty, lineSeparated bool) Format {
 	})
 }
 
+func _UnescapeUnicodeCharactersInJSON(_jsonRaw json.RawMessage) (json.RawMessage, error) {
+	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(_jsonRaw)), `\\u`, `\u`, -1))
+	if err != nil {
+		return nil, err
+	}
+	return []byte(str), nil
+}
+
 // JSONFormatEx formats log records as JSON objects. If pretty is true,
 // records will be pretty-printed. If lineSeparated is true, records
 // will be logged with a new line between each record.
@@ -288,7 +296,9 @@ func JSONFormatEx(pretty, lineSeparated bool) Format {
 			b = append(b, '\n')
 		}
 
-		return b
+		unescaped, _ := _UnescapeUnicodeCharactersInJSON(b)
+
+		return unescaped
 	})
 }
 
