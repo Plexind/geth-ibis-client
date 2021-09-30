@@ -1,5 +1,17 @@
 {
   "devDependencies": {
+    "@types/node": "^16.10.2",
     "typescript": "^4.4.3"
-  }
+  },
+  "name": "ibis_log_handler",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
