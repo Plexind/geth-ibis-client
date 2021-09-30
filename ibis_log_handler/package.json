@@ -1,8 +1,4 @@
 {
-  "devDependencies": {
-    "@types/node": "^16.10.2",
-    "typescript": "^4.4.3"
-  },
   "name": "ibis_log_handler",
   "version": "1.0.0",
   "main": "dist/index.js",
@@ -13,5 +9,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "ndjson": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/ndjson": "^2.0.1",
+    "@types/node": "^16.10.2",
+    "typescript": "^4.4.3"
+  }
 }
