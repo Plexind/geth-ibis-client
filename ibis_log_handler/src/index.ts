@@ -1,9 +1,8 @@
 import fs from 'fs';
 import { Readable } from "stream";
 import path from "path";
-import config from "./config.json";
-import S3Bucket from "./bucket/S3Bucket";
 import Bucket from "./bucket/Bucket";
+import S3BucketClient from "./bucket/S3BucketClient";
 
 
 const main = async (): Promise<void> => {
@@ -41,13 +40,8 @@ const getFileName = (filePath: string): string => {
 }
 
 const getDestination = (): Bucket => {
-    return new S3Bucket(config.awsBucketName, {
-        region: config.awsRegion,
-        credentials: {
-            accessKeyId: config.awsAccessKeyId,
-            secretAccessKey: config.awsSecretAccessKey
-        }
-    });
+    console.assert(process.env.S3BUCKET_NAME, "No bucket name provided");
+    return new S3BucketClient().getBucket(String(process.env.S3BUCKET_NAME));
 }
 
 main();
