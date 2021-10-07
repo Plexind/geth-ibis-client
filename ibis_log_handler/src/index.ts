@@ -1,12 +1,18 @@
 import fs from 'fs';
-import FileDestination from "./FileDestination/FileDestination";
+import { Readable } from "stream";
+import path from "path";
+import config from "./config.json";
+import S3Bucket from "./bucket/S3Bucket";
+import Bucket from "./bucket/Bucket";
+
 
 const main = async (): Promise<void> => {
     checkUsage();
-    const fileName = getFileName();
-    const file = await readFile(fileName);
-    const destination = {} as FileDestination; // TODO: create a concrete implementation for S3
-    await destination.put(file);
+    const filePath = getFilePath();
+    const file = getFileStream(filePath);
+    const fileName = getFileName(filePath);
+    const destination = getDestination();
+    await destination.upload(fileName, file);
     console.log("done");
 }
 
@@ -19,23 +25,28 @@ const checkUsage = (): void => {
 }
 
 const printUsage = (): void => {
-    console.log("Usage: \nnode index.ts <filepath>");
+    console.log("Usage: \nnode index.ts \<filePath>");
 }
 
-const getFileName = (): string => {
-    const args = process.argv;
-    return args[2];
+const getFileStream = (filePath: string): Readable => {
+    return fs.createReadStream(filePath);
 }
 
-const readFile = async (fileName: string): Promise<Buffer> => {
-    return new Promise(resolve => {
-        fs.readFile(fileName, (err,data): void => {
-            if (err) {
-                console.log(err);
-                throw new Error("Error reading file");
-            }
-            resolve(data);
-        });
+const getFilePath = (): string => {
+    return process.argv[2];
+}
+
+const getFileName = (filePath: string): string => {
+    return path.parse(filePath).base;
+}
+
+const getDestination = (): Bucket => {
+    return new S3Bucket(config.awsBucketName, {
+        region: config.awsRegion,
+        credentials: {
+            accessKeyId: config.awsAccessKeyId,
+            secretAccessKey: config.awsSecretAccessKey
+        }
     });
 }
 
